@@ -28,12 +28,6 @@ export CARGO_TARGET_DIR=$PWD/target/lambda
         yum install -y "$@"
     fi
 
-    if test -f "$HOOKS_DIR/$INSTALL_HOOK"; then
-        echo "Running install hook"
-        /bin/bash "$HOOKS_DIR/$INSTALL_HOOK"
-        echo "Install hook ran successfully"
-    fi
-
     # source cargo
     . $CARGO_HOME/env
 
@@ -69,12 +63,7 @@ function package() {
     cp "${file}.debug" "${OUTPUT_FOLDER}/bootstrap.debug" > 2&>/dev/null || true
 
     if [[ "$PACKAGE" != "false" ]]; then
-        zip -j "$file.zip" "${OUTPUT_FOLDER}/bootstrap"
-        if test -f "$HOOKS_DIR/$PACKAGE_HOOK"; then
-            echo "Running package hook"
-            /bin/bash "$HOOKS_DIR/$PACKAGE_HOOK" $file
-            echo "Package hook ran successfully"
-        fi
+        zip -j "$file.zip" "${OUTPUT_FOLDER}/bootstrap" /usr/lib64/mysql/libmysqlclient.so.18
     fi
 }
 
