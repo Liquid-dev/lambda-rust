@@ -31,14 +31,19 @@ export CARGO_TARGET_DIR=$PWD/target/lambda
     # source cargo
     . $CARGO_HOME/env
 
-    CARGO_BIN_ARG="" && [[ -n "$BIN" ]] && CARGO_BIN_ARG="--bin ${BIN}"
+    # CARGO_BIN_ARG="" && [[ -n "$BIN" ]] && CARGO_BIN_ARG="--bin ${BIN}"
 
     # cargo only supports --release flag for release
     # profiles. dev is implicit
+
+		BIN=$(echo $BIN | sed 's/|/ --bin /g')
+
     if [ "${PROFILE}" == "release" ]; then
-        cargo build ${CARGO_BIN_ARG} ${CARGO_FLAGS:-} --${PROFILE}
+        echo "cargo build --bin ${BIN} ${CARGO_FLAGS:-} --${PROFILE}"
+        cargo build --bin ${BIN} ${CARGO_FLAGS:-} --${PROFILE}
     else
-        cargo build ${CARGO_BIN_ARG} ${CARGO_FLAGS:-}
+        echo "cargo build --bin ${BIN} ${CARGO_FLAGS:-}"
+        cargo build --bin ${BIN} ${CARGO_FLAGS:-}
     fi
 
     if test -f "$HOOKS_DIR/$BUILD_HOOK"; then
@@ -70,13 +75,11 @@ function package() {
 cd "${CARGO_TARGET_DIR}/${TARGET_PROFILE}"
 (
     . $CARGO_HOME/env
-    if [ -z "$BIN" ]; then
-        IFS=$'\n'
-        for executable in $(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | .targets[] | select(.kind[] | contains("bin")) | .name'); do
-          package "$executable"
-        done
-    else
+		BINS=$(echo $BIN | tr "|" "\n")
+		
+		for BIN in $BINS
+		do
         package "$BIN"
-    fi
+		done
 
 ) 1>&2
