@@ -1,11 +1,11 @@
 VERSION ?= 0.4.0
 RUST_VERSION ?= 1.57.0
 REPO ?= liquid-dev/lambda-rust
-TAG ?= "$(REPO)/$(VERSION)-rust-$(RUST_VERSION)"
+REGISTRY = ghcr.io
+TAG ?= "$(REGISTRY)/$(REPO):$(VERSION)-rust-$(RUST_VERSION)"
 
 publish: build
 	@docker push $(TAG)
-	@docker push $(REPO):latest
 
 build:
 	@docker build --build-arg RUST_VERSION=$(RUST_VERSION) -t $(TAG) .

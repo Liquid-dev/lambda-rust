@@ -22,3 +22,5 @@ jobs:
           make publish
         env:
           OWNER: ${{ github.repository_owner }}
+      - name: Logout
+        run: docker logout
